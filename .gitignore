@@ -1,0 +1,17 @@
+# store tarball
+*.tar.gz
+
+# editors / tools
+.vscode/
+.idea/
+*.kdev4
+.kdev4/
+.claude/
+*.swp
+*~
+*.orig
+*.rej
+
+# desktop
+.directory
+.DS_Store

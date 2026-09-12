@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+    <kcfgfile name=""/>
+    <group name="">
+        <entry name="Rows" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="Columns" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="MaxScale" type="Double">
+            <default>0.3</default>
+        </entry>
+        <entry name="TopMargin" type="Int">
+            <default>100</default>
+        </entry>
+        <entry name="PanelWidth" type="Int">
+            <default>92</default>
+        </entry>
+        <entry name="PanelOpacity" type="Int">
+            <default>92</default>
+        </entry>
+        <entry name="BackdropDim" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="HideEmptyRows" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="ShowMinimized" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="WallpaperTiles" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="Blur" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="BlurRadius" type="Int">
+            <default>32</default>
+        </entry>
+        <entry name="PanelColorSet" type="Enum">
+            <default>View</default>
+            <choices>
+                <choice name="View" />
+                <choice name="Window" />
+                <choice name="Button" />
+                <choice name="Tooltip" />
+                <choice name="Complementary" />
+                <choice name="Header" />
+            </choices>
+        </entry>
+        <entry name="TileColorSet" type="Enum">
+            <default>Window</default>
+            <choices>
+                <choice name="View" />
+                <choice name="Window" />
+                <choice name="Button" />
+                <choice name="Tooltip" />
+                <choice name="Complementary" />
+                <choice name="Header" />
+            </choices>
+        </entry>
+        <entry name="WindowColorSet" type="Enum">
+            <default>Button</default>
+            <choices>
+                <choice name="View" />
+                <choice name="Window" />
+                <choice name="Button" />
+                <choice name="Tooltip" />
+                <choice name="Complementary" />
+                <choice name="Header" />
+            </choices>
+        </entry>
+        <entry name="ActiveBorderColor" type="Enum">
+            <default>Highlight</default>
+            <choices>
+                <choice name="Highlight" />
+                <choice name="Focus" />
+                <choice name="Link" />
+                <choice name="Text" />
+            </choices>
+        </entry>
+        <entry name="BorderActivate" type="IntList" />
+        <entry name="TouchBorderActivate" type="IntList" />
+    </group>
+</kcfg>
