@@ -16,7 +16,7 @@ and GNOME's overview.
   <tr>
     <td colspan="2" align="center">
       <img src="assets/other-screens.png" alt="A second screen as a sidebar card, and a minimized window as a chip"><br>
-      <sub>A second screen in the sidebar, and a minimized window as a chip in its tile</sub>
+      <sub>A second screen in the sidebar, and a minimized window as a chip in the first tile</sub>
     </td>
   </tr>
   <tr>
