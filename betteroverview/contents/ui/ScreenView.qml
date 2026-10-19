@@ -910,7 +910,7 @@ FocusScope {
             Text {
                 anchors.fill: parent
                 visible: search.text.length === 0
-                text: i18nd("kwin_effect_betteroverview", "Search windows, / to start")
+                text: i18nd("kwin_effect_betteroverview", "Search windows: / or Ctrl+F")
                 color: root.alpha(root.panelText, 0.5)
                 font: search.font
                 verticalAlignment: Text.AlignVCenter

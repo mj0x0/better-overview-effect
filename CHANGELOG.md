@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-10-19
 
 - Search: `/` or `Ctrl+F` opens a field above the panel; typing filters windows, `Enter` opens the best match.
 - Settings for panel, desktop and window corner radii.
