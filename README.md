@@ -39,6 +39,8 @@ and GNOME's overview.
 - Arrows or `hjkl` move between desktops, `1`–`9` and `0` jump, the wheel
   steps, `Esc`/`Enter` close. Clicking outside the panel closes it.
 - Minimized windows show as small icon chips along the bottom of their tile.
+- `/` or `Ctrl+F` opens search above the panel. Typing filters windows by title
+  or app, `Enter` opens the best match, `Esc` clears.
 - With more than one screen, a sidebar shows each other screen's current
   desktop. Drop a window there to send it to that screen.
 - Optional blur of the desktop behind the panel. Lower the panel opacity to

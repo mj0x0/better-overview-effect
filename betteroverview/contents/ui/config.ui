@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>BetterOverviewEffectConfig</class>
  <widget class="QWidget" name="BetterOverviewEffectConfig">
@@ -119,13 +119,85 @@
     </widget>
    </item>
    <item row="5" column="0">
+    <widget class="QLabel" name="label_PanelRadius">
+     <property name="text">
+      <string>Panel corners:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QSpinBox" name="kcfg_PanelRadius">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>64</number>
+     </property>
+     <property name="suffix">
+      <string> px</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_TileRadius">
+     <property name="text">
+      <string>Desktop corners:</string>
+     </property>
+     <property name="toolTip">
+      <string>In screen pixels; shrinks with the tiles like everything else in them.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QSpinBox" name="kcfg_TileRadius">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>64</number>
+     </property>
+     <property name="suffix">
+      <string> px</string>
+     </property>
+     <property name="toolTip">
+      <string>In screen pixels; shrinks with the tiles like everything else in them.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_WindowRadius">
+     <property name="text">
+      <string>Window corners:</string>
+     </property>
+     <property name="toolTip">
+      <string>In screen pixels; shrinks with the tiles like everything else in them.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QSpinBox" name="kcfg_WindowRadius">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>64</number>
+     </property>
+     <property name="suffix">
+      <string> px</string>
+     </property>
+     <property name="toolTip">
+      <string>In screen pixels; shrinks with the tiles like everything else in them.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
     <widget class="QLabel" name="label_PanelColorSet">
      <property name="text">
       <string>Panel colors:</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="8" column="1">
     <widget class="QComboBox" name="kcfg_PanelColorSet">
      <item>
       <property name="text">
@@ -159,14 +231,14 @@
      </item>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="9" column="0">
     <widget class="QLabel" name="label_TileColorSet">
      <property name="text">
       <string>Desktop tile colors:</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="9" column="1">
     <widget class="QComboBox" name="kcfg_TileColorSet">
      <item>
       <property name="text">
@@ -200,14 +272,14 @@
      </item>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label_WindowColorSet">
      <property name="text">
       <string>Window colors:</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="10" column="1">
     <widget class="QComboBox" name="kcfg_WindowColorSet">
      <item>
       <property name="text">
@@ -241,14 +313,14 @@
      </item>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="11" column="0">
     <widget class="QLabel" name="label_ActiveBorderColor">
      <property name="text">
       <string>Active desktop border:</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="11" column="1">
     <widget class="QComboBox" name="kcfg_ActiveBorderColor">
      <item>
       <property name="text">
@@ -272,14 +344,14 @@
      </item>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="12" column="0">
     <widget class="QLabel" name="label_PanelOpacity">
      <property name="text">
       <string>Panel opacity:</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
+   <item row="12" column="1">
     <widget class="QSpinBox" name="kcfg_PanelOpacity">
      <property name="minimum">
       <number>0</number>
@@ -295,14 +367,14 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="13" column="0">
     <widget class="QLabel" name="label_BackdropDim">
      <property name="text">
       <string>Dim the desktop behind:</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="13" column="1">
     <widget class="QSpinBox" name="kcfg_BackdropDim">
      <property name="minimum">
       <number>0</number>
@@ -318,28 +390,28 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
+   <item row="14" column="0">
     <widget class="QLabel" name="label_Blur">
      <property name="text">
       <string>Blur:</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="1">
+   <item row="14" column="1">
     <widget class="QCheckBox" name="kcfg_Blur">
      <property name="text">
       <string>Blur the desktop behind the panel</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="0">
+   <item row="15" column="0">
     <widget class="QLabel" name="label_BlurRadius">
      <property name="text">
       <string>Blur radius:</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="1">
+   <item row="15" column="1">
     <widget class="QSpinBox" name="kcfg_BlurRadius">
      <property name="minimum">
       <number>4</number>
@@ -355,35 +427,35 @@
      </property>
     </widget>
    </item>
-   <item row="13" column="0">
+   <item row="16" column="0">
     <widget class="QLabel" name="label_Options">
      <property name="text">
       <string>Options:</string>
      </property>
     </widget>
    </item>
-   <item row="13" column="1">
+   <item row="16" column="1">
     <widget class="QCheckBox" name="kcfg_HideEmptyRows">
      <property name="text">
       <string>Hide rows with no windows</string>
      </property>
     </widget>
    </item>
-   <item row="14" column="1">
+   <item row="17" column="1">
     <widget class="QCheckBox" name="kcfg_ShowMinimized">
      <property name="text">
       <string>Show minimized windows (dimmed, icon only)</string>
      </property>
     </widget>
    </item>
-   <item row="15" column="1">
+   <item row="18" column="1">
     <widget class="QCheckBox" name="kcfg_WallpaperTiles">
      <property name="text">
       <string>Show the wallpaper in desktop tiles</string>
      </property>
     </widget>
    </item>
-   <item row="16" column="1">
+   <item row="19" column="1">
     <widget class="QLabel" name="label_HotCorner">
      <property name="text">
       <string>Bind the shortcut under System Settings → Shortcuts → Window Management → "Toggle Better Overview". A hot corner can be assigned under Screen Edges.</string>
@@ -393,9 +465,9 @@
      </property>
     </widget>
    </item>
-   </layout>
+  </layout>
  </widget>
- <resources />
+ <resources/>
  <connections>
   <connection>
    <sender>kcfg_Blur</sender>

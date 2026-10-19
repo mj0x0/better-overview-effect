@@ -11,13 +11,13 @@ KWinComponents.SceneEffect {
     id: effect
 
     property bool activated: false
-    // what KWin actually did: it refuses to start while another full-screen effect runs (e.g. Slide)
+    // KWin refuses to start while another full-screen effect runs (e.g. Slide)
     property bool kwinRunning: false
     onActivated: kwinRunning = true
     onDeactivated: kwinRunning = false
     readonly property int animationDuration: Kirigami.Units.longDuration
 
-    // KWin's shared QML engine caches files by URL for the whole session; the stamp makes re-enabling the effect load edited files
+    // KWin caches QML by URL for the whole session; the stamp lets a re-enable load edited files
     property var mainDelegate: Qt.createComponent("ScreenView.qml?" + Date.now())
     delegate: mainDelegate
 
@@ -77,7 +77,7 @@ KWinComponents.SceneEffect {
         if (activated) {
             return;
         }
-        // re-opening during the fade-out reuses the live views instead of dropping the press
+        // re-opening during the fade-out reuses the live views
         deactivateTimer.stop();
         visible = true;
         if (!kwinRunning) {

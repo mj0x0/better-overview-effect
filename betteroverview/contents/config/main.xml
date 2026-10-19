@@ -20,6 +20,15 @@
         <entry name="PanelWidth" type="Int">
             <default>92</default>
         </entry>
+        <entry name="PanelRadius" type="Int">
+            <default>16</default>
+        </entry>
+        <entry name="TileRadius" type="Int">
+            <default>24</default>
+        </entry>
+        <entry name="WindowRadius" type="Int">
+            <default>18</default>
+        </entry>
         <entry name="PanelOpacity" type="Int">
             <default>92</default>
         </entry>

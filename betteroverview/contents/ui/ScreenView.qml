@@ -56,8 +56,9 @@ FocusScope {
     }
     readonly property int tileW: Math.round(screenW * tileScale)
     readonly property int tileH: Math.round(screenH * tileScale)
-    readonly property real tileRadius: Math.max(4, 24 * tileScale)
-    readonly property real panelRadius: tileRadius + padding
+    // tile and window corners are given at screen scale and shrink with the tiles
+    readonly property real tileRadius: Math.round(cfg.TileRadius * tileScale)
+    readonly property real panelRadius: cfg.PanelRadius
 
     property var rowVisible: []
     property var rowOffset: []
@@ -66,6 +67,7 @@ FocusScope {
     property Item hoveredWindow: null
     readonly property var otherScreens: KWinComponents.Workspace.screens.filter(s => s !== targetScreen)
     property bool dragActive: false
+    readonly property string searchText: search.text.trim().toLowerCase()
 
     property bool ready: false
     property real openProgress: ready && effect.activated ? 1 : 0
@@ -134,6 +136,20 @@ FocusScope {
         effect.deactivate();
     }
 
+    // current desktop first, then the others in order
+    function activateFirstMatch() {
+        const n = tiles.count;
+        const start = Math.max(0, desktops.indexOf(currentDesktop));
+        for (let k = 0; k < n; k++) {
+            const tile = tiles.itemAt((start + k) % n);
+            const match = tile ? tile.firstMatch() : null;
+            if (match) {
+                activateWindow(match.window);
+                return;
+            }
+        }
+    }
+
     function stepDesktop(delta) {
         const n = desktops.length;
         if (n < 2) {
@@ -197,6 +213,30 @@ FocusScope {
     }
 
     Keys.onPressed: (event) => {
+        if (search.activeFocus) {
+            // the field owns every key except these; Up/Down fall through to desktop navigation
+            switch (event.key) {
+            case Qt.Key_Escape:
+                search.text = "";
+                search.focus = false;
+                event.accepted = true;
+                return;
+            case Qt.Key_Return:
+            case Qt.Key_Enter:
+                activateFirstMatch();
+                event.accepted = true;
+                return;
+            case Qt.Key_Up:
+            case Qt.Key_Down:
+                break;
+            default:
+                return;
+            }
+        } else if (event.key === Qt.Key_Slash || (event.key === Qt.Key_F && (event.modifiers & Qt.ControlModifier))) {
+            search.forceActiveFocus();
+            event.accepted = true;
+            return;
+        }
         const idx = Math.max(0, desktops.indexOf(currentDesktop));
         const col = idx % columns;
         const row = Math.floor(idx / columns);
@@ -299,7 +339,6 @@ FocusScope {
         readonly property real wy: (window.y - tile.screen.geometry.y) * s
         readonly property real ww: window.width * s
         readonly property real wh: window.height * s
-        // the on-screen part of the window, in tile coordinates
         readonly property real initX: Math.round(Math.max(0, wx))
         readonly property real initY: Math.round(Math.max(0, wy))
         readonly property real initW: Math.round(Math.min(wx + ww, tile.width) - initX)
@@ -308,10 +347,13 @@ FocusScope {
         readonly property int slot: mini ? tile.minimizedItems.indexOf(win) : -1
         readonly property real chip: tile.chipSize
         readonly property bool shown: !window.skipPager && (mini ? root.cfg.ShowMinimized : initW > 0 && initH > 0)
+        readonly property bool matched: root.searchText === ""
+            || window.caption.toLowerCase().includes(root.searchText)
+            || window.resourceClass.toLowerCase().includes(root.searchText)
         readonly property bool compact: Math.min(width, height) < 56
         readonly property bool dragging: dragArea.drag.active
         readonly property bool hovered: dragArea.containsMouse
-        readonly property real radius: Math.max(2, 18 * s)
+        readonly property real radius: Math.round(root.cfg.WindowRadius * s)
 
         x: mini ? 6 + slot * (chip + 4) : initX
         y: mini ? tile.height - chip - 6 : initY
@@ -319,6 +361,10 @@ FocusScope {
         height: mini ? chip : Math.max(1, initH)
         visible: shown
         clip: true
+        opacity: matched ? 1 : 0.3
+        Behavior on opacity {
+            NumberAnimation { duration: Kirigami.Units.shortDuration }
+        }
         // minimized chips sit above everything so they stay reachable
         z: dragging ? 100000 : (mini ? 20000 + slot : window.stackingOrder)
 
@@ -410,7 +456,7 @@ FocusScope {
                 } else {
                     win.x = Qt.binding(() => win.mini ? 6 + win.slot * (win.chip + 4) : win.initX);
                     win.y = Qt.binding(() => win.mini ? win.tile.height - win.chip - 6 : win.initY);
-                    // another screen's view answers via onItemDroppedOutOfScreen
+                    // another screen's view may answer via onItemDroppedOutOfScreen
                     effect.checkItemDroppedOutOfScreen(globalPos, win);
                 }
             }
@@ -451,7 +497,7 @@ FocusScope {
         }
         readonly property real chipSize: Math.max(24, Math.min(Math.round(height * 0.2), (width - 12) / Math.max(1, minimizedItems.length) - 4))
 
-        // only windows the tile draws; sticky windows sit in every tile and must not keep rows alive
+        // sticky windows sit in every tile and must not keep rows alive
         readonly property int windowCount: {
             let n = 0;
             for (let i = 0; i < windows.count; i++) {
@@ -464,6 +510,17 @@ FocusScope {
         }
         property bool dropHover: false
         property bool dragging: false
+
+        function firstMatch() {
+            let best = null;
+            for (let i = 0; i < windows.count; i++) {
+                const item = windows.itemAt(i);
+                if (item && item.shown && item.matched && (!best || item.window.stackingOrder > best.window.stackingOrder)) {
+                    best = item;
+                }
+            }
+            return best;
+        }
 
         width: Math.round(screen.geometry.width * scale)
         height: Math.round(screen.geometry.height * scale)
@@ -570,7 +627,7 @@ FocusScope {
 
     Item {
         id: backdrop
-        // container keeps the thumbnails' z (stacking order) from competing with the panel
+        // keeps the thumbnails' z (stacking order) from competing with the panel
         anchors.fill: parent
         Repeater {
             model: KWinComponents.WindowFilterModel {
@@ -606,7 +663,7 @@ FocusScope {
         onWheel: (wheel) => root.stepDesktop(wheel.angleDelta.y > 0 ? -1 : 1)
     }
 
-    // one popup for all windows: a ToolTip per window made every open ~15 popups heavier
+    // one popup for all windows; one per window made every open noticeably heavier
     PC3.ToolTip {
         parent: root.hoveredWindow ?? root
         visible: root.hoveredWindow !== null && !root.dragActive
@@ -681,97 +738,183 @@ FocusScope {
         }
 
         Item {
-            id: grid
+            id: content
+            // a large panel radius would cut into the corner tiles; clip to the inner curve
+            readonly property real innerRadius: Math.max(0, root.panelRadius - root.padding)
             x: root.padding
             y: root.padding
-            width: panel.gridW
-            height: panel.gridH
+            width: panel.width - 2 * root.padding
+            height: panel.height - 2 * root.padding
+            layer.enabled: innerRadius > root.tileRadius + 1
+            layer.effect: MultiEffect {
+                maskEnabled: true
+                maskSource: contentMask
+                maskThresholdMin: 0.5
+                maskSpreadAtMin: 1.0
+            }
 
-            Repeater {
-                id: tiles
-                model: KWinComponents.VirtualDesktopModel {}
-                delegate: DesktopTile {
-                    x: column * (root.tileW + root.spacing)
+            Item {
+                id: grid
+                x: 0
+                y: 0
+                width: panel.gridW
+                height: panel.gridH
+
+                Repeater {
+                    id: tiles
+                    model: KWinComponents.VirtualDesktopModel {}
+                    delegate: DesktopTile {
+                        x: column * (root.tileW + root.spacing)
+                        y: (root.rowOffset[row] ?? row) * (root.tileH + root.spacing)
+                        visible: root.rowVisible[row] !== false
+                        onWindowCountChanged: root.updateRows()
+                    }
+                }
+
+                Rectangle {
+                    id: activeIndicator
+                    readonly property int idx: Math.max(0, root.desktops.indexOf(root.currentDesktop))
+                    readonly property int row: Math.floor(idx / root.columns)
+                    x: (idx % root.columns) * (root.tileW + root.spacing)
                     y: (root.rowOffset[row] ?? row) * (root.tileH + root.spacing)
-                    visible: root.rowVisible[row] !== false
-                    onWindowCountChanged: root.updateRows()
+                    z: 5
+                    width: root.tileW
+                    height: root.tileH
+                    radius: root.tileRadius
+                    color: "transparent"
+                    border.width: 2
+                    border.color: root.accentColor
+                    Behavior on x {
+                        NumberAnimation { duration: Kirigami.Units.longDuration; easing.type: Easing.OutCubic }
+                    }
+                    Behavior on y {
+                        NumberAnimation { duration: Kirigami.Units.longDuration; easing.type: Easing.OutCubic }
+                    }
                 }
             }
 
             Rectangle {
-                id: activeIndicator
-                readonly property int idx: Math.max(0, root.desktops.indexOf(root.currentDesktop))
-                readonly property int row: Math.floor(idx / root.columns)
-                x: (idx % root.columns) * (root.tileW + root.spacing)
-                y: (root.rowOffset[row] ?? row) * (root.tileH + root.spacing)
-                z: 5
-                width: root.tileW
-                height: root.tileH
-                radius: root.tileRadius
-                color: "transparent"
-                border.width: 2
-                border.color: root.accentColor
-                Behavior on x {
-                    NumberAnimation { duration: Kirigami.Units.longDuration; easing.type: Easing.OutCubic }
-                }
-                Behavior on y {
-                    NumberAnimation { duration: Kirigami.Units.longDuration; easing.type: Easing.OutCubic }
-                }
+                id: divider
+                visible: sidebar.visible
+                x: panel.gridW + 2 * root.spacing
+                y: 0
+                width: 1
+                height: Math.max(panel.gridH, sidebar.height)
+                color: root.alpha(root.panelText, 0.12)
             }
-        }
 
-        // other screens stack beside the grid; drop a window on one to send it over
-        Rectangle {
-            id: divider
-            visible: sidebar.visible
-            x: root.padding + panel.gridW + 2 * root.spacing
-            y: root.padding
-            width: 1
-            height: Math.max(panel.gridH, sidebar.height)
-            color: root.alpha(root.panelText, 0.12)
-        }
+            Column {
+                id: sidebar
+                visible: root.otherScreens.length > 0
+                x: divider.x + 1 + 2 * root.spacing
+                y: 0
+                spacing: 2 * root.spacing
 
-        Column {
-            id: sidebar
-            visible: root.otherScreens.length > 0
-            x: divider.x + 1 + 2 * root.spacing
-            y: root.padding
-            spacing: 2 * root.spacing
+                Repeater {
+                    model: root.otherScreens
+                    Column {
+                        id: card
+                        required property QtObject modelData
+                        spacing: root.spacing
 
-            Repeater {
-                model: root.otherScreens
-                Column {
-                    id: card
-                    required property QtObject modelData
-                    spacing: root.spacing
+                        DesktopTile {
+                            id: otherTile
+                            index: -1
+                            screen: card.modelData
+                            scale: root.tileW * 0.5 / card.modelData.geometry.width
+                            desktop: KWinComponents.Workspace.currentDesktopForScreen(card.modelData)
+                            label: ""
+                        }
 
-                    DesktopTile {
-                        id: otherTile
-                        index: -1
-                        screen: card.modelData
-                        scale: root.tileW * 0.5 / card.modelData.geometry.width
-                        desktop: KWinComponents.Workspace.currentDesktopForScreen(card.modelData)
-                        label: ""
-                    }
+                        Text {
+                            width: otherTile.width
+                            horizontalAlignment: Text.AlignHCenter
+                            elide: Text.ElideMiddle
+                            text: card.modelData.name
+                            font.pointSize: Kirigami.Theme.smallFont.pointSize
+                            color: root.alpha(root.panelText, 0.6)
+                        }
 
-                    Text {
-                        width: otherTile.width
-                        horizontalAlignment: Text.AlignHCenter
-                        elide: Text.ElideMiddle
-                        text: card.modelData.name
-                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                        color: root.alpha(root.panelText, 0.6)
-                    }
-
-                    Connections {
-                        target: KWinComponents.Workspace
-                        function onCurrentDesktopChanged(previous, current, output) {
-                            if (output === card.modelData) {
-                                otherTile.desktop = current;
+                        Connections {
+                            target: KWinComponents.Workspace
+                            function onCurrentDesktopChanged(previous, current, output) {
+                                if (output === card.modelData) {
+                                    otherTile.desktop = current;
+                                }
                             }
                         }
                     }
                 }
+            }
+        }
+
+        Item {
+            id: contentMask
+            visible: false
+            width: content.width
+            height: content.height
+            layer.enabled: true
+            layer.smooth: true
+            Rectangle {
+                anchors.fill: parent
+                radius: content.innerRadius
+            }
+        }
+    }
+
+    // floats in the top margin; overlaps the panel's edge only when the margin is too small
+    Kirigami.ShadowedRectangle {
+        id: searchPill
+        width: Math.min(panel.width, Kirigami.Units.gridUnit * 24)
+        height: Kirigami.Units.gridUnit * 2
+        x: Math.round((root.width - width) / 2)
+        y: Math.max(root.spacing, panel.y - 3 * root.spacing - height)
+        radius: Math.min(height / 2, root.panelRadius)
+        color: root.alpha(root.panelColor, root.cfg.PanelOpacity / 100)
+        border.width: 1
+        border.color: root.alpha(root.panelText, search.activeFocus ? 0.4 : 0.12)
+        shadow.size: Kirigami.Units.gridUnit
+        shadow.color: Qt.rgba(0, 0, 0, 0.45)
+        shadow.yOffset: 2
+        opacity: root.openProgress
+        scale: panel.scale
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: search.forceActiveFocus()
+        }
+
+        Kirigami.Icon {
+            id: searchIcon
+            source: "search"
+            color: root.panelText
+            width: Kirigami.Units.iconSizes.small
+            height: width
+            anchors.left: parent.left
+            anchors.leftMargin: parent.height / 2
+            anchors.verticalCenter: parent.verticalCenter
+        }
+
+        TextInput {
+            id: search
+            anchors.left: searchIcon.right
+            anchors.leftMargin: root.spacing
+            anchors.right: parent.right
+            anchors.rightMargin: parent.height / 2
+            anchors.verticalCenter: parent.verticalCenter
+            color: root.panelText
+            font: Kirigami.Theme.defaultFont
+            selectByMouse: true
+            clip: true
+
+            Text {
+                anchors.fill: parent
+                visible: search.text.length === 0
+                text: i18nd("kwin_effect_betteroverview", "Search windows, / to start")
+                color: root.alpha(root.panelText, 0.5)
+                font: search.font
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
             }
         }
     }
