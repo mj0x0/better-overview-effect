@@ -31,6 +31,18 @@ and GNOME's overview.
   </tr>
 </table>
 
+## Install
+
+From the [KDE Store](https://store.kde.org/p/2371127), or in System Settings →
+Desktop Effects → Get New Effects. From a clone:
+
+```fish
+kpackagetool6 --type KWin/Effect --install betteroverview
+```
+
+Enable **Better Overview** in Desktop Effects and bind a key under
+System Settings → Shortcuts → Window Management.
+
 ## Behaviour
 
 - Click a tile to switch to that desktop. Click a window to focus it.
