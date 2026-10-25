@@ -202,9 +202,13 @@ FocusScope {
                 const t = tiles.itemAt(i);
                 if (t && t.visible && p.x >= t.x && p.x < t.x + t.width && p.y >= t.y && p.y < t.y + t.height) {
                     const w = item.window;
+                    const restore = root.cfg.RestoreOnEmptyDesktop && w.minimized && t.liveCount === 0;
                     KWinComponents.Workspace.sendClientToScreen(w, screen);
                     if (w.desktops.length > 0) {
                         w.desktops = [t.desktop];
+                    }
+                    if (restore) {
+                        w.minimized = false;
                     }
                     return;
                 }
@@ -445,12 +449,16 @@ FocusScope {
                 const otherDesktop = target && w.desktops.length > 0 && w.desktops.indexOf(target.desktop) === -1;
                 if (otherScreen || otherDesktop) {
                     // deferred: the model removes this delegate as soon as the window moves
+                    const restore = root.cfg.RestoreOnEmptyDesktop && w.minimized && target.liveCount === 0;
                     Qt.callLater(() => {
                         if (otherScreen) {
                             KWinComponents.Workspace.sendClientToScreen(w, target.screen);
                         }
                         if (otherDesktop) {
                             w.desktops = [target.desktop];
+                        }
+                        if (restore) {
+                            w.minimized = false;
                         }
                     });
                 } else {
@@ -496,6 +504,16 @@ FocusScope {
             return items;
         }
         readonly property real chipSize: Math.max(24, Math.min(Math.round(height * 0.2), (width - 12) / Math.max(1, minimizedItems.length) - 4))
+        readonly property int liveCount: {
+            let n = 0;
+            for (let i = 0; i < windows.count; i++) {
+                const item = windows.itemAt(i);
+                if (item && item.shown && !item.window.minimized) {
+                    n++;
+                }
+            }
+            return n;
+        }
 
         // sticky windows sit in every tile and must not keep rows alive
         readonly property int windowCount: {
@@ -567,6 +585,27 @@ FocusScope {
             font.pixelSize: Math.max(12, Math.round(desktopTile.height * 0.42))
             font.weight: Font.DemiBold
             color: root.alpha(root.tileText, 0.2)
+        }
+
+        // wallpaper tiles get a corner badge instead, so hidden rows cannot mislabel a tile
+        Rectangle {
+            visible: root.cfg.WallpaperTiles && desktopTile.label.length > 0
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: 6
+            width: badge.implicitWidth + 12
+            height: badge.implicitHeight + 6
+            radius: height / 2
+            color: root.alpha(root.tileColor, 0.75)
+            z: 30000
+            Text {
+                id: badge
+                anchors.centerIn: parent
+                text: desktopTile.label
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.weight: Font.DemiBold
+                color: root.tileText
+            }
         }
 
         MouseArea {

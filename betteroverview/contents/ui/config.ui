@@ -448,6 +448,13 @@
      </property>
     </widget>
    </item>
+   <item row="19" column="1">
+    <widget class="QCheckBox" name="kcfg_RestoreOnEmptyDesktop">
+     <property name="text">
+      <string>Un-minimize a window dropped on an empty desktop</string>
+     </property>
+    </widget>
+   </item>
    <item row="18" column="1">
     <widget class="QCheckBox" name="kcfg_WallpaperTiles">
      <property name="text">
@@ -455,7 +462,7 @@
      </property>
     </widget>
    </item>
-   <item row="19" column="1">
+   <item row="20" column="1">
     <widget class="QLabel" name="label_HotCorner">
      <property name="text">
       <string>Bind the shortcut under System Settings → Shortcuts → Window Management → "Toggle Better Overview". A hot corner can be assigned under Screen Edges.</string>

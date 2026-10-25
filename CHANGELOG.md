@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0 — 2026-10-25
+
+- Desktop number badge on wallpaper tiles.
+- Option: un-minimize windows dropped on an empty desktop.
+
 ## 0.2.0 — 2026-10-19
 
 - Search: `/` or `Ctrl+F` opens a field above the panel; typing filters windows, `Enter` opens the best match.

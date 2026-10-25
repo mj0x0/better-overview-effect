@@ -41,6 +41,9 @@
         <entry name="ShowMinimized" type="Bool">
             <default>true</default>
         </entry>
+        <entry name="RestoreOnEmptyDesktop" type="Bool">
+            <default>true</default>
+        </entry>
         <entry name="WallpaperTiles" type="Bool">
             <default>false</default>
         </entry>
