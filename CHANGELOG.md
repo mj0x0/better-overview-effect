@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 — 2026-11-21
+
+- Search: `Tab` cycles through the matches.
+- Options: four-finger touchpad swipe, touchscreen edge swipe. Re-login after upgrading.
+- "Maximum tile scale" renamed "Largest tile".
+
 ## 0.3.0 — 2026-10-25
 
 - Desktop number badge on wallpaper tiles.

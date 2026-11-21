@@ -75,12 +75,21 @@
    <item row="3" column="0">
     <widget class="QLabel" name="label_MaxScale">
      <property name="text">
-      <string>Maximum tile scale:</string>
+      <string>Largest tile:</string>
+     </property>
+     <property name="toolTip">
+      <string>Upper limit for one desktop tile, as a fraction of the screen. It only matters with few desktops; otherwise the panel width decides the size.</string>
      </property>
     </widget>
    </item>
    <item row="3" column="1">
     <widget class="QDoubleSpinBox" name="kcfg_MaxScale">
+     <property name="toolTip">
+      <string>Upper limit for one desktop tile, as a fraction of the screen. It only matters with few desktops; otherwise the panel width decides the size.</string>
+     </property>
+     <property name="suffix">
+      <string> × screen</string>
+     </property>
      <property name="decimals">
       <number>2</number>
      </property>
@@ -463,6 +472,58 @@
     </widget>
    </item>
    <item row="20" column="1">
+    <widget class="QCheckBox" name="kcfg_TouchpadGesture">
+     <property name="text">
+      <string>Touchpad: four-finger swipe up opens, down closes</string>
+     </property>
+     <property name="toolTip">
+      <string>The stock Overview effect uses the same swipe. Turn that effect off, or both will open.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="21" column="0">
+    <widget class="QLabel" name="label_TouchEdge">
+     <property name="text">
+      <string>Touchscreen:</string>
+     </property>
+     <property name="toolTip">
+      <string>Swipe inwards from this screen edge on a touchscreen to open or close the overview. KWin's own Touchscreen Gestures page cannot list add-on effects.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="21" column="1">
+    <widget class="QComboBox" name="kcfg_TouchEdge">
+     <property name="toolTip">
+      <string>Swipe inwards from this screen edge on a touchscreen to open or close the overview. KWin's own Touchscreen Gestures page cannot list add-on effects.</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Off</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Swipe from the top edge</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Swipe from the right edge</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Swipe from the bottom edge</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Swipe from the left edge</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="22" column="1">
     <widget class="QLabel" name="label_HotCorner">
      <property name="text">
       <string>Bind the shortcut under System Settings → Shortcuts → Window Management → "Toggle Better Overview". A hot corner can be assigned under Screen Edges.</string>

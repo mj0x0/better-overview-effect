@@ -52,7 +52,9 @@ System Settings → Shortcuts → Window Management.
   steps, `Esc`/`Enter` close. Clicking outside the panel closes it.
 - Minimized windows show as small icon chips along the bottom of their tile.
 - `/` or `Ctrl+F` opens search above the panel. Typing filters windows by title
-  or app, `Enter` opens the best match, `Esc` clears.
+  or app, `Tab` cycles the matches, `Enter` opens the selected one, `Esc` clears.
+- Optional touch gestures: a four-finger touchpad swipe, or a swipe from a
+  touchscreen edge.
 - With more than one screen, a sidebar shows each other screen's current
   desktop. Drop a window there to send it to that screen.
 - Optional blur of the desktop behind the panel. Lower the panel opacity to

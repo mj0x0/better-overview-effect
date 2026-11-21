@@ -68,6 +68,11 @@ FocusScope {
     readonly property var otherScreens: KWinComponents.Workspace.screens.filter(s => s !== targetScreen)
     property bool dragActive: false
     readonly property string searchText: search.text.trim().toLowerCase()
+    property QtObject selectedWindow: null
+    property int matchCount: 0
+    property int matchPos: 0
+    // deferred so every window's matched binding has settled first
+    onSearchTextChanged: Qt.callLater(() => root.selectMatch(0))
 
     property bool ready: false
     property real openProgress: ready && effect.activated ? 1 : 0
@@ -136,17 +141,45 @@ FocusScope {
         effect.deactivate();
     }
 
-    // current desktop first, then the others in order
-    function activateFirstMatch() {
+    // current desktop first, then the others in order; sticky windows count once
+    function collectMatches() {
+        const out = [];
         const n = tiles.count;
         const start = Math.max(0, desktops.indexOf(currentDesktop));
         for (let k = 0; k < n; k++) {
             const tile = tiles.itemAt((start + k) % n);
-            const match = tile ? tile.firstMatch() : null;
-            if (match) {
-                activateWindow(match.window);
-                return;
+            if (!tile) {
+                continue;
             }
+            for (const item of tile.matches()) {
+                if (out.indexOf(item.window) === -1) {
+                    out.push(item.window);
+                }
+            }
+        }
+        return out;
+    }
+
+    // step 0 selects the first match, +1/-1 cycle with wrap-around
+    function selectMatch(step) {
+        const list = searchText === "" ? [] : collectMatches();
+        const n = list.length;
+        let i = 0;
+        if (n > 0 && step !== 0) {
+            const at = list.indexOf(selectedWindow);
+            i = at < 0 ? 0 : ((at + step) % n + n) % n;
+        }
+        matchCount = n;
+        matchPos = n > 0 ? i + 1 : 0;
+        selectedWindow = n > 0 ? list[i] : null;
+    }
+
+    function activateSelectedMatch() {
+        if (!selectedWindow) {
+            selectMatch(0);
+        }
+        if (selectedWindow) {
+            activateWindow(selectedWindow);
         }
     }
 
@@ -227,7 +260,7 @@ FocusScope {
                 return;
             case Qt.Key_Return:
             case Qt.Key_Enter:
-                activateFirstMatch();
+                activateSelectedMatch();
                 event.accepted = true;
                 return;
             case Qt.Key_Up:
@@ -354,6 +387,7 @@ FocusScope {
         readonly property bool matched: root.searchText === ""
             || window.caption.toLowerCase().includes(root.searchText)
             || window.resourceClass.toLowerCase().includes(root.searchText)
+        readonly property bool selected: root.selectedWindow === window
         readonly property bool compact: Math.min(width, height) < 56
         readonly property bool dragging: dragArea.drag.active
         readonly property bool hovered: dragArea.containsMouse
@@ -409,8 +443,8 @@ FocusScope {
             anchors.fill: parent
             radius: win.radius
             color: root.alpha(root.windowColor, dragArea.pressed ? 0.5 : (win.hovered ? 0.4 : 0.22))
-            border.width: 1
-            border.color: root.alpha(root.outlineColor, win.window.minimized ? 0.5 : 0.3)
+            border.width: win.selected ? 2 : 1
+            border.color: win.selected ? root.accentColor : root.alpha(root.outlineColor, win.window.minimized ? 0.5 : 0.3)
         }
 
         Kirigami.Icon {
@@ -529,15 +563,15 @@ FocusScope {
         property bool dropHover: false
         property bool dragging: false
 
-        function firstMatch() {
-            let best = null;
+        function matches() {
+            const out = [];
             for (let i = 0; i < windows.count; i++) {
                 const item = windows.itemAt(i);
-                if (item && item.shown && item.matched && (!best || item.window.stackingOrder > best.window.stackingOrder)) {
-                    best = item;
+                if (item && item.shown && item.matched) {
+                    out.push(item);
                 }
             }
-            return best;
+            return out.sort((a, b) => b.window.stackingOrder - a.window.stackingOrder);
         }
 
         width: Math.round(screen.geometry.width * scale)
@@ -707,7 +741,11 @@ FocusScope {
         parent: root.hoveredWindow ?? root
         visible: root.hoveredWindow !== null && !root.dragActive
         delay: Kirigami.Units.toolTipDelay
-        text: root.hoveredWindow ? root.hoveredWindow.window.caption + "\n[" + root.hoveredWindow.window.resourceClass + "]" : ""
+        text: {
+            // the hovered tile can outlive its window for a moment while the view closes
+            const w = root.hoveredWindow ? root.hoveredWindow.window : null;
+            return w ? w.caption + "\n[" + w.resourceClass + "]" : "";
+        }
     }
 
     ShaderEffectSource {
@@ -934,17 +972,36 @@ FocusScope {
             anchors.verticalCenter: parent.verticalCenter
         }
 
+        Text {
+            id: matchCounter
+            visible: root.searchText !== ""
+            text: root.matchPos + " / " + root.matchCount
+            color: root.alpha(root.panelText, 0.6)
+            font: Kirigami.Theme.smallFont
+            anchors.right: parent.right
+            anchors.rightMargin: parent.height / 2
+            anchors.verticalCenter: parent.verticalCenter
+        }
+
         TextInput {
             id: search
             anchors.left: searchIcon.right
             anchors.leftMargin: root.spacing
-            anchors.right: parent.right
-            anchors.rightMargin: parent.height / 2
+            anchors.right: matchCounter.visible ? matchCounter.left : parent.right
+            anchors.rightMargin: matchCounter.visible ? root.spacing : parent.height / 2
             anchors.verticalCenter: parent.verticalCenter
             color: root.panelText
             font: Kirigami.Theme.defaultFont
             selectByMouse: true
             clip: true
+
+            Keys.onPressed: (event) => {
+                const back = event.key === Qt.Key_Backtab || (event.key === Qt.Key_Tab && (event.modifiers & Qt.ShiftModifier));
+                if (back || event.key === Qt.Key_Tab) {
+                    root.selectMatch(back ? -1 : 1);
+                    event.accepted = true;
+                }
+            }
 
             Text {
                 anchors.fill: parent

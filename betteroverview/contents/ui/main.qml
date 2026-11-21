@@ -30,12 +30,45 @@ KWinComponents.SceneEffect {
         }
     }
 
+    // KWin's Touchscreen Gestures page cannot list third-party effects, so the edge is also our own setting
+    readonly property var touchEdges: {
+        const edges = [];
+        const listed = effect.configuration.TouchBorderActivate ?? [];
+        for (let i = 0; i < listed.length; i++) {
+            edges.push(listed[i]);
+        }
+        // none, top, right, bottom, left as KWin edge numbers
+        const own = [-1, 0, 2, 4, 6][effect.configuration.TouchEdge] ?? -1;
+        if (own >= 0 && edges.indexOf(own) === -1) {
+            edges.push(own);
+        }
+        return edges;
+    }
+
     Instantiator {
-        model: effect.configuration.TouchBorderActivate
+        model: effect.touchEdges
         KWinComponents.ScreenEdgeHandler {
             mode: KWinComponents.ScreenEdgeHandler.Touch
             edge: modelData
             onActivated: effect.toggle()
+        }
+    }
+
+    Instantiator {
+        model: effect.configuration.TouchpadGesture ? 1 : 0
+        KWinComponents.SwipeGestureHandler {
+            direction: KWinComponents.SwipeGestureHandler.Direction.Up
+            fingerCount: 4
+            onActivated: effect.activate()
+        }
+    }
+
+    Instantiator {
+        model: effect.configuration.TouchpadGesture ? 1 : 0
+        KWinComponents.SwipeGestureHandler {
+            direction: KWinComponents.SwipeGestureHandler.Direction.Down
+            fingerCount: 4
+            onActivated: effect.deactivate()
         }
     }
 
