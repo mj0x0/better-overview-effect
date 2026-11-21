@@ -2,7 +2,7 @@
 
 ## 0.4.0 — 2026-11-21
 
-- Search: `Tab` cycles through the matches.
+- Search: `Tab` and `Shift+Tab` cycle through the matches.
 - Options: four-finger touchpad swipe, touchscreen edge swipe. Re-login after upgrading.
 - "Maximum tile scale" renamed "Largest tile".
 
